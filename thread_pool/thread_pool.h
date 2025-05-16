@@ -46,7 +46,7 @@ namespace thread_pool_v1 {
         void stop();
 
     private:
-        thread_pool(size_t thread_num = std::thread::hardware_concurrency());
+        explicit thread_pool(size_t thread_num = std::thread::hardware_concurrency());
         ~thread_pool();
         /// 中止
         std::atomic<bool> m_stop = false;

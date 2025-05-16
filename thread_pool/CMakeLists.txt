@@ -16,3 +16,9 @@ target_link_libraries(thread_pool_test PRIVATE
         GTest::gtest_main
         Threads::Threads
 )
+
+add_executable(performance_test tests/performance_test.cpp)
+target_link_libraries(performance_test PRIVATE
+        thread_pool_lib
+        Threads::Threads
+)
