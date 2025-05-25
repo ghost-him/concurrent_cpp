@@ -1,12 +1,9 @@
-add_library(concurrent_queue_lib
-        concurrent_queue.cpp
-        concurrent_queue.h
-)
+add_library(concurrent_queue_lib INTERFACE)
 
-target_include_directories(concurrent_queue_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(concurrent_queue_lib INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 find_package(Threads REQUIRED)
-target_link_libraries(concurrent_queue_lib PRIVATE Threads::Threads)
+target_link_libraries(concurrent_queue_lib INTERFACE Threads::Threads)
 
 add_executable(concurrent_queue_test tests/test_concurrent_queue.cpp)
 target_link_libraries(concurrent_queue_test PRIVATE

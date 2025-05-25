@@ -1,4 +1,11 @@
-# 线程池
+# 无锁队列
 
-参考文档：https://llfc.club/articlepage?id=2VWIJgH3zKEww0BpLnYQX0NMpQ9
+参考文档：https://gitbookcpp.llfc.club/sections/cpp/concurrent/concpp13.html
+
+## 优点
+* 高性能: 无锁设计避免了上下文切换和内核开销，在低到中等竞争环境下可能提供比基于锁的队列更高的吞吐量。
+* 并发安全: 正确使用了std::atomic和内存序，确保了在多线程环境下的数据一致性和可见性。
+* 通用性: 模板设计允许存储任何类型的数据。
+* 资源管理: 使用std::allocator来管理对象的生命周期，避免了内存泄漏和未定义行为。
+
 
