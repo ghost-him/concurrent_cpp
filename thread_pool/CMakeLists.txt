@@ -1,24 +1,24 @@
-add_library(thread_pool_lib
-        thread_pool.cpp
-        thread_pool.h
-        enable_singleton.cpp
-        enable_singleton.h
+cmake_minimum_required(VERSION 4.0)
+project(thread_pool)
+
+set(CMAKE_CXX_STANDARD 23 REQUIRED)
+
+add_subdirectory(thread_pool)
+
+enable_testing()
+
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/tags/v1.17.0.zip # Or specific commit/tag
 )
 
-target_include_directories(thread_pool_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+FetchContent_MakeAvailable(googletest)
 
 find_package(Threads REQUIRED)
-target_link_libraries(thread_pool_lib PRIVATE Threads::Threads)
 
-add_executable(thread_pool_test tests/test_thread_pool.cpp)
-target_link_libraries(thread_pool_test PRIVATE
-        thread_pool_lib
-        GTest::gtest_main
-        Threads::Threads
-)
 
-add_executable(performance_test tests/performance_test.cpp)
-target_link_libraries(performance_test PRIVATE
+add_executable(thread_pool_exe main.cpp)
+target_link_libraries(thread_pool_exe PRIVATE
         thread_pool_lib
-        Threads::Threads
 )

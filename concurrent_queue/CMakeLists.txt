@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 4.0)
-project(thread_pool)
+project(concurrent_queue)
 
 set(CMAKE_CXX_STANDARD 23 REQUIRED)
 
-add_subdirectory(thread_pool)
+add_subdirectory(concurrent_queue)
 
 enable_testing()
 
@@ -18,7 +18,7 @@ FetchContent_MakeAvailable(googletest)
 find_package(Threads REQUIRED)
 
 
-add_executable(thread_pool_exe main.cpp)
-target_link_libraries(thread_pool_exe PRIVATE
-        thread_pool_lib
+add_executable(concurrent_queue_exe main.cpp)
+target_link_libraries(concurrent_queue_exe PRIVATE
+    concurrent_queue_lib
 )
