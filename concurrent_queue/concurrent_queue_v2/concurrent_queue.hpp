@@ -2,8 +2,8 @@
 // Created by ghost-him on 25-5-25.
 //
 
-#ifndef CONCURRENT_QUEUE_H
-#define CONCURRENT_QUEUE_H
+#ifndef concurrent_queue_v2_H
+#define concurrent_queue_v2_H
 #include <atomic>
 #include <memory>
 #include <bitset>
@@ -11,18 +11,18 @@
 
 
 template<typename T, size_t Cap>
-class concurrent_queue :private std::allocator<T> {
+class concurrent_queue_v2 :private std::allocator<T> {
 public:
-    concurrent_queue() : m_max_size(Cap + 1), m_head(0), m_tail(0),m_data(std::allocator<T>::allocate(m_max_size)), m_flag(new std::atomic<bool>[m_max_size]) {
+    concurrent_queue_v2() : m_max_size(Cap + 1), m_head(0), m_tail(0),m_data(std::allocator<T>::allocate(m_max_size)), m_flag(new std::atomic<bool>[m_max_size]) {
         for (size_t i = 0; i < m_max_size; i ++) {
             m_flag[i].store(false, std::memory_order_relaxed);
         }
     }
-    concurrent_queue(const concurrent_queue&) = delete;
-    concurrent_queue& operator=(const concurrent_queue&) volatile = delete;
-    concurrent_queue& operator=(const concurrent_queue&) = delete;
+    concurrent_queue_v2(const concurrent_queue_v2&) = delete;
+    concurrent_queue_v2& operator=(const concurrent_queue_v2&) volatile = delete;
+    concurrent_queue_v2& operator=(const concurrent_queue_v2&) = delete;
 
-    ~concurrent_queue() {
+    ~concurrent_queue_v2() {
         while (m_head != m_tail) {
             std::destroy_at(m_data + m_head);
             m_head = (m_head + 1) % m_max_size;
@@ -103,4 +103,4 @@ private:
 
 
 
-#endif //CONCURRENT_QUEUE_H
+#endif //concurrent_queue_v2_H
