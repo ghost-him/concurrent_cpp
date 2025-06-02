@@ -16,19 +16,10 @@ void MultiThreadPush()
             }
     });
 
-    std::thread t2([&]()
-    {
-            for (int i = 20000; i < 40000; i++)
-            {
-                int mc(i);
-                thread_safe_list.push_back(mc);
-                std::cout << "push back " << i << " success" << std::endl;
-            }
-    });
 
     std::thread t3([&]()
     {
-            for(int i = 0; i < 40000; )
+            for(int i = 0; i < 20000; )
             {
                 bool rmv_res = thread_safe_list.remove_first([&](const int& mc)
                     {
@@ -46,7 +37,6 @@ void MultiThreadPush()
     });
 
     t1.join();
-    t2.join();
     t3.join();
 
     std::cout << "begin for each print...." << std::endl;

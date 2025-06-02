@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <mutex>
 #include <memory>
-
+#include <iostream>
 template<typename T>
 class concurrent_list {
     struct node {
@@ -15,13 +15,8 @@ class concurrent_list {
     };
     node m_head;
 
-    // 尾指针，用于实现高效的尾插入
-    node * m_last_node_ptr;
-    // 互斥访问尾指针，防止尾插入出现并发问题
-    std::mutex m_last_ptr_mutex;
 public:
     concurrent_list() {
-        m_last_node_ptr = &m_head;
     }
     ~concurrent_list() {
         // 始终返回true,所以会删除所有的结点
@@ -46,11 +41,6 @@ public:
                 // 如果谓词是满足的，则说明要删除这个谓词
                 std::unique_ptr<node> old_next = std::move(current->m_next);
                 current->m_next = std::move(next->m_next);
-                // 如果删除的这个结点是最后一个结点了，则需要更新尾指针
-                if (current->m_next == nullptr) {
-                    std::lock_guard<std::mutex> last_guard(m_last_ptr_mutex);
-                    m_last_node_ptr = current;
-                }
                 next_guard.unlock();
             } else {
                 guard.unlock();
@@ -69,11 +59,6 @@ public:
             if (p(*next->m_data)) {
                 std::unique_ptr<node> old_next = std::move(current->m_next);
                 current->m_next = std::move(next->m_next);
-                // 如果删除的已经是最后一个结点了
-                if (current->m_next == nullptr) {
-                    std::lock_guard<std::mutex> last_guard(m_last_ptr_mutex);
-                    m_last_node_ptr = current;
-                }
                 next_guard.unlock();
                 return true;
             }
@@ -108,26 +93,7 @@ public:
         std::lock_guard<std::mutex> guard(m_head.m_mutex);
         new_node->m_next = std::move(m_head.m_next);
         m_head.m_next = std::move(new_node);
-        // 更新尾指针，如果插入的是第一个结点，则更新
-        if (m_head.m_next->m_next == nullptr) {
-            std::lock_guard<std::mutex> last_guard(m_last_ptr_mutex);
-            m_last_node_ptr = m_head.m_next.get();
-        }
     }
-
-    // 使用尾插法，插入一个新的结点
-    void push_back(const T& value) {
-        std::unique_ptr<node> new_node(new node(value));
-        // 这里要对这两个同时加锁，不然可能会与删除操作产生数据竞争
-        std::lock(m_last_node_ptr->m_mutex, m_last_ptr_mutex);
-        std::unique_lock<std::mutex> guard(m_last_node_ptr->m_mutex, std::adopt_lock);
-        std::unique_lock<std::mutex> last_guard(m_last_ptr_mutex, std::adopt_lock);
-        // 添加新的结点
-        m_last_node_ptr->m_next = std::move(new_node);
-        // 更新尾指针
-        m_last_node_ptr = m_last_node_ptr->m_next.get();
-    }
-
 
 
     // 遍历所有的结点，对每一个结点都使用f调用一下
