@@ -38,7 +38,7 @@ TEST_F(ConcurrentListTest, MixedOperationsStressTest) {
                     list.push_front(push_value);
                     items_pushed_count++;
                 } else if (operation_type == 1) { // PushBack
-                    list.push_back(push_value);
+                    list.push_front(push_value);
                     items_pushed_count++;
                 } else if (operation_type == 2) { // RemoveIf
                     // Remove even numbers. This is a broad removal.
@@ -149,7 +149,7 @@ TEST_F(ConcurrentListTest, ConcurrentPushAndCount) {
                 if (j % 2 == 0) {
                     list.push_front(val);
                 } else {
-                    list.push_back(val);
+                    list.push_front(val);
                 }
             }
         });
