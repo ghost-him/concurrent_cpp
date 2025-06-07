@@ -20,7 +20,7 @@ private:
     std::atomic<std::shared_ptr<node>> m_head;
 public:
 
-    concurrent_stack_v2() {}
+    concurrent_stack_v2() = default;
     void push(const T& data) {
         std::shared_ptr<node> new_node = std::make_shared<node>(node(data));
         // 更新m_head的值

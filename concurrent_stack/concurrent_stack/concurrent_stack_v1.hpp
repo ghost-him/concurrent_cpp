@@ -17,7 +17,7 @@ private:
     // 而加了mutable后，在const函数也可以实现加锁，从而实现线程安全
     mutable std::mutex m_mutex;
 public:
-    concurrent_stack_v1() {}
+    concurrent_stack_v1() = default;
 
     concurrent_stack_v1(const concurrent_stack_v1& other) {
         std::lock_guard<std::mutex> guard(other.m_mutex);
