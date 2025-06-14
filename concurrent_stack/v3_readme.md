@@ -1,5 +1,7 @@
 > 以下的内容由 Gemini 2.5 Pro Preview 06-05 输出
 
+> 参考视频：https://www.bilibili.com/video/BV1Qj411p7wW
+
 这段代码实现了一个**无锁并发栈**（`concurrent_stack_v3`），其核心是使用了一种名为**“风险指针”（Hazard Pointers）**的技术来安全地管理内存。在不使用锁的情况下，多线程数据结构最大的挑战之一就是如何安全地释放节点内存，以避免“ABA问题”和“悬挂指针（use-after-free）”的错误。风险指针就是解决这个问题的经典方案之一。
 
 ### 整体架构

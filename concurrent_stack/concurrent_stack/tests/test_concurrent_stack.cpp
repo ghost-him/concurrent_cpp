@@ -8,11 +8,13 @@
 #include <gtest/gtest.h>
 
 #include "concurrent_stack_v2.hpp"
+#include "concurrent_stack_v3.hpp"
+#include "concurrent_stack_v4.hpp"
 
 // 测试套件，用于组织相关的测试
 class ConcurrentStackV2Test : public ::testing::Test {
 protected:
-    concurrent_stack_v2<int> stack;
+    concurrent_stack_v4<int> stack;
 };
 
 // 测试1: 单线程环境下的基本功能正确性
