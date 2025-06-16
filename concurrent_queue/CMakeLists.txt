@@ -1,10 +1,11 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.31)
 project(concurrent_queue)
 
 set(CMAKE_CXX_STANDARD 23 REQUIRED)
 
 add_subdirectory(concurrent_queue_v1)
 add_subdirectory(concurrent_queue_v2)
+add_subdirectory(concurrent_queue_v3)
 
 enable_testing()
 

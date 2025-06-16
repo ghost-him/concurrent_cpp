@@ -1,6 +1,6 @@
 # 无锁队列
 
-这个版本是使用原子变量与内存顺序实现的无锁队列
+这个版本是使用原子变量与内存顺序实现的循环无锁队列
 
 参考文档：https://gitbookcpp.llfc.club/sections/cpp/concurrent/concpp13.html
 

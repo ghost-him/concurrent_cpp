@@ -5,8 +5,8 @@ target_include_directories(concurrent_queue_lib_v2 INTERFACE ${CMAKE_CURRENT_SOU
 find_package(Threads REQUIRED)
 target_link_libraries(concurrent_queue_lib_v2 INTERFACE Threads::Threads)
 
-add_executable(concurrent_queue_test tests/test_concurrent_queue.cpp)
-target_link_libraries(concurrent_queue_test PRIVATE
+add_executable(concurrent_queue_test_v2 tests/test_concurrent_queue.cpp)
+target_link_libraries(concurrent_queue_test_v2 PRIVATE
         concurrent_queue_lib_v2
         GTest::gtest_main
         Threads::Threads
