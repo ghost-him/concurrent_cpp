@@ -1,131 +1,16 @@
+//
+// Created by ghost-him on 25-6-21.
+//
+
+#ifndef CONCURRENT_QUEUE_H
+#define CONCURRENT_QUEUE_H
+
+
 #pragma once
 
 #include <mutex>
 #include <queue>
 #include <condition_variable>
-
-/// 这个代码的讲解可以去看并发栈v1版本。这两个的设计思路基本一样，所以这个代码就不写注释了
-
-template<typename T>
-class concurrent_queue_v1 {
-private:
-    mutable std::mutex m_mutex;
-    std::queue<T> m_data;
-    std::condition_variable m_cv;
-
-public:
-    concurrent_queue_v1() {}
-
-    void push(T new_value) {
-        std::lock_guard<std::mutex> guard(m_mutex);
-        m_data.push(std::move(new_value));
-        m_cv.notify_one();
-    }
-
-    void wait_and_pop(T& value) {
-        std::unique_lock<std::mutex> guard(m_mutex);
-        m_cv.wait(guard, [this] {return !m_data.empty();});
-        value = std::move(m_data.front());
-        m_data.pop();
-    }
-
-    std::shared_ptr<T> wait_and_pop() {
-        std::unique_lock<std::mutex> guard(m_mutex);
-        m_cv.wait(guard, [this]{return !m_data.empty();});
-        std::shared_ptr<T> result(std::make_shared<T>(std::move(m_data.front())));
-        m_data.pop();
-        return result;
-    }
-
-    bool try_pop(T& value) {
-        std::lock_guard<std::mutex> guard(m_mutex);
-        if (m_data.empty()) {
-            return false;
-        }
-        value = std::move(m_data.front());
-        m_data.pop();
-        return true;
-    }
-
-    std::shared_ptr<T> try_pop() {
-        std::lock_guard<std::mutex> guard(m_mutex);
-        if (m_data.empty()) {
-            return std::shared_ptr<T>();
-        }
-        std::shared_ptr<T> result(std::make_shared<T>(std::move(m_data.front())));
-        m_data.pop();
-        return result;
-    }
-
-    bool empty() const {
-        std::lock_guard<std::mutex> guard(m_mutex);
-        return m_data.empty();
-    }
-};
-
-/// 在wait_and_pop时，在取数据时，可能会出现异常，从而导致没取出来。此时不会执行m_data.pop()，这会导致有一个元素没有被消费掉
-/// 也有可能在移动数据时，因为T是自己写的数据类型，这就有可能移动本身出现问题，这也会导致代码出现了问题。
-/// 同时，在构造智能指针时，也可能会出现问题
-/// 为了代码的robust，这里可以通过智能指针的方式来优化
-
-template<typename T>
-class concurrent_queue_v2 {
-private:
-    mutable std::mutex m_mutex;
-    std::queue<std::shared_ptr<T>> m_data;
-    std::condition_variable m_cv;
-public:
-    concurrent_queue_v2() {}
-    void wait_and_pop(T& value) {
-        std::unique_lock<std::mutex> guard(m_mutex);
-        m_cv.wait(guard, [this] {return !m_data.empty();});
-        // 这个可以解决内存的问题（T本身已经在外面被定义好了），如果是移动本身出现了问题，则需要在通过逻辑来解决
-        value = std::move(*m_data.front());
-        m_data.pop();
-    }
-
-    bool try_pop(T& value) {
-        std::lock_guard<std::mutex> guard(m_mutex);
-        if (m_data.empty()) {
-            return false;
-        }
-        value = std::move(*m_data.front());
-        m_data.pop();
-        return true;
-    }
-
-    std::shared_ptr<T> wait_and_pop() {
-        std::unique_lock<std::mutex> guard(m_mutex);
-        m_cv.wait(guard, [this]{return !m_data.empty();});
-        // 这里使用的是栈上的空间，而“内存耗尽”一般是指堆上的空间，所以这个代码也没问题
-        // 为什么上面的代码会有问题？因为在构造智能指针时，存在malloc，在malloc的过程中就有可能会出现问题
-        std::shared_ptr<T> result = m_data.front();
-        m_data.pop();
-        return result;
-    }
-
-    std::shared_ptr<T> try_pop() {
-        std::lock_guard<std::mutex> guard(m_mutex);
-        if (m_data.empty()) {
-            return std::shared_ptr<T>();
-        }
-        std::shared_ptr<T> result = m_data.front();
-        m_data.pop();
-        return result;
-    }
-
-    void push(T new_value) {
-        std::shared_ptr<T> data(std::make_shared<T>(std::move(new_value)));
-        std::lock_guard<std::mutex> guard(m_mutex);
-        m_data.push(data);
-        m_cv.notify_one();
-    }
-    bool empty() const {
-        std::lock_guard<std::mutex> guard(m_mutex);
-        return m_data.empty();
-    }
-};
-
 
 /// 由于上述的版本是采用标准库来实现的，而这会导致使用同一把锁来管理push与pop，而队列本身是可以把这两个操作用两个锁来管理的。
 /// 所以就有了v3版本
@@ -253,3 +138,5 @@ public:
         m_cv.notify_one();
     }
 };
+
+#endif //CONCURRENT_QUEUE_H
